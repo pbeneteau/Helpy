@@ -336,7 +336,7 @@
                                 <state key="normal" title="HELP!"/>
                                 <connections>
                                     <action selector="helpButtonAction:" destination="dGt-kg-t2L" eventType="touchUpInside" id="T7h-SP-95g"/>
-                                    <segue destination="1xI-oI-o28" kind="presentation" id="kL7-im-bAF"/>
+                                    <segue destination="1xI-oI-o28" kind="show" id="kL7-im-bAF"/>
                                 </connections>
                             </button>
                             <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PgG-HQ-tfN" customClass="SpringImageView" customModule="Spring">
@@ -468,17 +468,41 @@
                                     <action selector="closeButton:" destination="y42-3f-sIR" eventType="touchUpInside" id="pfi-ox-AQl"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Distance" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zL6-n4-k5J">
+                                <rect key="frame" x="20" y="204" width="339" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ner-PB-Zwt">
+                                <rect key="frame" x="20" y="453" width="339" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xx3-gT-bEb">
+                                <rect key="frame" x="174" y="489" width="30" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="GO"/>
+                                <connections>
+                                    <action selector="routefromAdressButton:" destination="y42-3f-sIR" eventType="touchUpInside" id="uUY-4z-1K0"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <connections>
+                        <outlet property="taskAddressLabel" destination="Ner-PB-Zwt" id="na6-pz-EO3"/>
                         <outlet property="taskDateLabel" destination="QoO-3T-S5z" id="cpV-1o-PDN"/>
+                        <outlet property="taskDistanceLabel" destination="zL6-n4-k5J" id="IA4-Nj-sYT"/>
                         <outlet property="taskTypeLabel" destination="6pE-Y2-14X" id="Nof-yL-grD"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="97Y-DO-nb2" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2120.8000000000002" y="877.51124437781118"/>
+            <point key="canvasLocation" x="2157.5999999999999" y="877.51124437781118"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="1q0-Qy-kbd">

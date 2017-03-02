@@ -14,13 +14,13 @@ struct asksArround{
     
     var date: String?
     var type: String?
-    var distanceBetweenUser: Double?
+    var distance: Double?
+    var address: String?
     
-    init ( date : String, type : String, distanceBetweenUser: Double) {
+    init ( date : String, type : String, distance: Double, address: String) {
         self.date = date
         self.type = type
-        self.distanceBetweenUser = distanceBetweenUser
-        //self.distanceBetweenUser = locationHelp().getLocationsDistance(location1: self.location!, location2: locationHelp().getLocation())
-        
+        self.distance = distance
+        self.address = address
     }
 }

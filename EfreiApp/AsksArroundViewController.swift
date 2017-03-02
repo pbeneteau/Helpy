@@ -95,19 +95,19 @@ class AsksArroundViewController: UIViewController, UITableViewDelegate, UITableV
             if let dict = snapshot.value as? [String : [String:Any]] {
                 
                 for (_, value) in dict {
-                    if let task = value["task"] as? String {
-                        if let date = value["date"] as? String {
-                            if let location = value["location"] as? String {
-                                let ss = location.components(separatedBy: CharacterSet(charactersIn: "<,>")).flatMap({
+                    if let task: String = value["task"] as? String {
+                        if let taskDate: String = value["date"] as? String {
+                            if let taskLocation: String = value["location"] as? String {
+                                if let taskAddress: String = value["address"] as? String {
+                                let ss = taskLocation.components(separatedBy: CharacterSet(charactersIn: "<,>")).flatMap({
                                     Double($0)
                                 })
-                                
-                                let c = CLLocation(latitude: ss[0], longitude: ss[1])
-                                print(c)
-                                let distance: Double = self.locationClass.getLocationsDistance(location1: c, location2: self.locationClass.getLocation())
-                                if distance <= distanceMax {
-                                    let taskArray = asksArround(date: date, type: task, distanceBetweenUser: distance)
-                                    self.tasksList.append(taskArray)
+                                    let c = CLLocation(latitude: ss[0], longitude: ss[1])
+                                    let taskDistance: Double = self.locationClass.getLocationsDistance(location1: c, location2: self.locationClass.getLocation())
+                                    if taskDistance <= distanceMax {
+                                        let taskArray = asksArround(date: taskDate, type: task, distance: taskDistance, address: taskAddress)
+                                        self.tasksList.append(taskArray)
+                                    }
                                 }
                             }
                         }
