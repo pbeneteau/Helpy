@@ -13,7 +13,6 @@ import Firebase
 import SwiftLocation
 
 
-
 class MainUser {
     
     private let ref = FIRDatabase.database().reference()
@@ -39,7 +38,6 @@ class MainUser {
         return name
     }
     
-
     func getName() -> String {
         return self.name
     }
@@ -51,5 +49,4 @@ class MainUser {
         name = ""
         status = true
     }
-    
 }

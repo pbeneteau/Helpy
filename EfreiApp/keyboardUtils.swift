@@ -24,7 +24,6 @@ class keyboardUtils: UIViewController, UIGestureRecognizerDelegate, UITextFieldD
     func removeObservers() {
         NotificationCenter.default.removeObserver(self, name: .UIKeyboardWillShow, object: view.window)
         NotificationCenter.default.removeObserver(self, name: .UIKeyboardWillHide, object: view.window)
-        
     }
     
     
@@ -55,6 +54,7 @@ class keyboardUtils: UIViewController, UIGestureRecognizerDelegate, UITextFieldD
         }
         return true
     }
+    
     func keyboardWillShow(notification: NSNotification) {
         
         if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {

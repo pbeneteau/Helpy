@@ -6,13 +6,12 @@
 //  Copyright © 2017 Paul Bénéteau. All rights reserved.
 //
 
-import Foundation
+import Firebase
 import CoreLocation
 import SwiftLocation
 import MapKit
-import FirebaseDatabase
 import SwiftyJSON
-import Firebase
+
 
 class locationHelp {
     
@@ -26,39 +25,59 @@ class locationHelp {
     private var city: String!
     private var postalCode: String!
     private var countryCode: String!
+    private var state: String!
     private var address: String!
+    private var userHomeLocationAsk: CLLocation!
     
+    
+    // Location
     func setLocation(location: CLLocation) {
-        getAdressFromCoordinates(location: location)
+        self.location = location
+        self.getLocationDetails(location: location)
     }
     
-    func getUserLocation() {
-        _ = LocationManager().getLocation(withAccuracy: .block, frequency: .oneShot, timeout: 50, onSuccess: { (location) in
-            self.location = location
-        }) { (lastValidLocation, error) in
-            print("location fail")
-        }
-    }
     
-    // Get user City, PostalCode and Country code
-    func getAdressFromCoordinates(location: CLLocation) {
-        _ = Location1.reverse(coordinates: location.coordinate, onSuccess: { foundPlacemark in
+    // Get current user City, PostalCode and Country code
+    func getLocationDetails(location: CLLocation) {
+        _ = Location.reverse(coordinates: location.coordinate, onSuccess: { foundPlacemark in
             self.city = foundPlacemark.locality
             self.countryCode = foundPlacemark.isoCountryCode
             self.postalCode = foundPlacemark.postalCode
+            self.state = foundPlacemark.administrativeArea
+            print(self.state)
         }) { error in
             print("Error: \(error)")
         }
     }
     
-    // Get user coordinates from adress
-    func coordinatesFromAdress(address: String) {
+    func updateUserLocation() {
+        var r = Location.getLocation(withAccuracy: .block, frequency: .oneShot, timeout: nil, onSuccess: { (location) in
+            
+            self.setLocation(location: location)
+            
+        }) { (last, err) in
+            print("err \(err)")
+        }
+        r.onAuthorizationDidChange = { newStatus in
+            print("New status \(newStatus)")
+        }
+    }
+    
+    // Get coordinates from adress
+    func coordinatesFromAdress() {
         
-        let geocoder = CLGeocoder()
-        geocoder.geocodeAddressString(address) {
-            placemarks, error in
-            let placemark = placemarks?.first
-            self.userHomeLocation = placemark?.location
+        let geoCoder = CLGeocoder()
+        geoCoder.geocodeAddressString(self.address!) { (placemarks, error) in
+            guard
+                let placemarks = placemarks,
+                let locationFromAdress = placemarks.first?.location
+                else {
+                    print("location from address not found")
+                    print("trying again...")
+                    self.coordinatesFromAdress()
+                    return
+            }
+            self.userHomeLocation = locationFromAdress
         }
     }
     
@@ -66,28 +85,19 @@ class locationHelp {
         
         let userRef = ref.child("users").child(userID)
         
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        userRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
+            let name = JSON(snapshot.value!)["address"].stringValue
+            self.address = name
+        }) { (error) in
+            print(error.localizedDescription)
+        }
+    }
+    
+    func getLocationsDistance(location1: CLLocation, location2: CLLocation) -> Double {
         
-        userRef.observeSingleEvent(of: .value, with:  { (snapshot) in
-            let dictionary = snapshot.value as! [String: Any]
-            print(dictionary)
-            print(snapshot)
-            
-        }, withCancel: { (error) in
-            print(error)
-        })
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        let distanceMeters = location1.distance(from: location2)
         
-        let childRef = FIRDatabase.database().reference(withPath: "users")
-        
-        userRef.observe(.value, with: { snapshot in
-            
-            for item in snapshot.children {
-                
-                let json = JSON(item)
-                print(json)
-            }
-        })
+        return distanceMeters
     }
     
     func getCity() -> String {
@@ -102,9 +112,10 @@ class locationHelp {
         
         return self.countryCode
     }
+    func getState() -> String {
+        return state
+    }
     func getLocation() -> CLLocation {
-        
-        getUserLocation()
         return location
     }
     func getLat() -> CLLocationDegrees {
@@ -112,28 +123,23 @@ class locationHelp {
         return location.coordinate.latitude
     }
     func getLong() -> CLLocationDegrees{
-        
+ 
         return location.coordinate.longitude
     }
-    func getUserHomeLocation(address: String) -> CLLocation  {
-        
-        coordinatesFromAdress(address: address)
+    func getUserHomeLocation() -> CLLocation  {
         return userHomeLocation
     }
-    func getUserDatabaseAdress(uid: String) -> String {
-       
-        retrieveUserDatabaseAdress(userID: uid)
+    func getUserDatabaseAdress() -> String {
         return address
     }
     
     init() {
-        
+        userHomeLocation = CLLocation(latitude: 0.0, longitude: 0.0)
         location = CLLocation(latitude: 0.0, longitude: 0.0)
         city = ""
         postalCode = ""
         countryCode = ""
         address = ""
+        userHomeLocationAsk = CLLocation(latitude: 0.0, longitude: 0.0)
     }
-    
-    
 }

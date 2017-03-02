@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>Alamofire.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>BWWalkthrough.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -20,6 +25,11 @@
 			<false/>
 		</dict>
 		<key>Hero.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>NVActivityIndicatorView.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -62,17 +72,17 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>107A9565F9DF88517DFD3E28C05B2B96</key>
+		<key>3EDFE4052B5DE7D509935AC0774CB135</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>482DE7BEA8E45E5C56BB19BA86087C8F</key>
+		<key>4446C6F2497DA93B607CAC8567D62246</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>4AA4F0C0A1A63E4DE27F23798CB8B1F9</key>
+		<key>4FE0B7DA8828ACD2DE82ABF7AF9F2AAF</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -87,12 +97,22 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>63BA0AF28D8E70BE24BFD65D6058019C</key>
+		<key>6D5CEDECD3D8DC52EA507E0431BDA8A0</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>88E9EC28B8B46C3631E6B242B50F4442</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
 		<key>9889562781163BF5CB84E06A985BCE44</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>B4BF3675925B0787F3B2E1EBD41F302F</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -112,7 +132,7 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>DA9A88F53224DD32C8C175737643E08A</key>
+		<key>DAE6AAF05FA78E64F03E17BA3D9DD020</key>
 		<dict>
 			<key>primary</key>
 			<true/>

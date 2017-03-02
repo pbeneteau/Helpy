@@ -15,7 +15,9 @@ target 'EfreiApp' do
   pod 'PermissionScope'
   pod 'SwiftLocation', '>= 1.0.6'
   pod 'SwiftyJSON'
-
+  pod 'Firebase/Crash'
+  pod 'Alamofire'
+  pod 'NVActivityIndicatorView'
   
   pod 'Spring', :git => 'https://github.com/MengTo/Spring.git', :branch => 'swift3'
 

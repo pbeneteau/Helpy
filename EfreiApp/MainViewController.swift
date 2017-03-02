@@ -14,9 +14,12 @@ import CoreLocation
 import MapKit
 import SwiftLocation
 import PermissionScope
+import Alamofire
+import SystemConfiguration
+import NVActivityIndicatorView
 
 
-class MainViewController: UIViewController {
+class MainViewController: UIViewController, NVActivityIndicatorViewable {
     
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var emailLabel: UILabel!
@@ -30,23 +33,30 @@ class MainViewController: UIViewController {
     
     let User = MainUser()
     let locationClass = locationHelp()
+    let askClass = askHelp()
     
     let pscope = PermissionScope()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        pscope.addPermission(LocationAlwaysPermission(), message: "We use this to track\r\nwhere you live :)")
-        
-        showLocationPermission(scope: pscope)
-        
-        initLocation()
-        
-        initProfileView()
-        
-        if user == nil {
-            transitionSegue.segue.switchToLoginview()
-            disconnectButton(Any.self)
+        if isInternetAvailable() == false {
+            print("No connexion detected")
+        } else {
+            print("Connexion detected")
+            
+            pscope.addPermission(LocationAlwaysPermission(), message: "We use this to track\r\nwhere you live :)")
+            
+            showLocationPermission(scope: pscope)
+            
+            initLocationDetails()
+            
+            initProfileView()
+            
+            if user == nil {
+                transitionSegue.segue.switchToLoginview()
+                disconnectButton(Any.self)
+            }
         }
         
     }
@@ -59,17 +69,15 @@ class MainViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    func initLocation() {
-        self.locationManager.requestAlwaysAuthorization()
+    func initLocationDetails() {
         
-        // For use in foreground
-        self.locationManager.requestWhenInUseAuthorization()
-        
-        if CLLocationManager.locationServicesEnabled() {
-            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-            locationManager.startUpdatingLocation()
-        }
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        locationClass.updateUserLocation()
+        locationClass.retrieveUserDatabaseAdress(userID: (user?.uid)!)
+        locationClass.coordinatesFromAdress()
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
+    
     @IBAction func disconnectButton(_ sender: Any) {
         
         if FIRAuth.auth()?.currentUser != nil {
@@ -96,12 +104,7 @@ class MainViewController: UIViewController {
     
     @IBAction func helpButtonAction(_ sender: Any) {
         
-        //let locationRef = ref.child("asks").child(user!.uid).child("location")
-        
-        //let country = locationRef.child("country")
-        
-        // Comparer localisation écrite avec localisation actuelle
-        checkCurrentUserLocationWithAdress()
+        startAnimating(CGSize(width: 30, height: 30), message: "Loading...", type: .ballScaleRippleMultiple)
     }
     
     func initProfileView() {
@@ -112,39 +115,6 @@ class MainViewController: UIViewController {
         emailLabel.text = user?.email
     }
     
-    func checkCurrentUserLocationWithAdress() -> Bool {
-        
-        let currentLocation: CLLocation = locationClass.getLocation()
-        
-        let userHomeAdress = locationClass.getUserDatabaseAdress(uid: user!.uid)
-        print(userHomeAdress)
-        
-        let homeLocation: CLLocation = locationClass.getUserHomeLocation(address: userHomeAdress)
-        
-        //let adressLocation: CLLocation = locationClass.getLocation()
-       
-        let distance = getLocationsDistance(location1: currentLocation, location2: homeLocation)
-        
-        print(distance)
-        
-        if distance < 200.00 {
-            print("Less than 200m! Good!")
-            return true
-        } else {
-            print("More than 200m! Not good!")
-            return false
-        }
-        
-    }
-    
-    func getLocationsDistance(location1: CLLocation, location2: CLLocation) -> Double {
-        
-            let distanceMeters = location1.distance(from: location2)
-        
-            return distanceMeters
-
-    }
-   
     func showLocationPermission(scope: PermissionScope!) {
         scope.show(
             { finished, results in
@@ -154,5 +124,26 @@ class MainViewController: UIViewController {
                 print("thing was cancelled")
         }
         )
+    }
+    
+    func isInternetAvailable() -> Bool
+    {
+        var zeroAddress = sockaddr_in()
+        zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
+        zeroAddress.sin_family = sa_family_t(AF_INET)
+        
+        let defaultRouteReachability = withUnsafePointer(to: &zeroAddress) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {zeroSockAddress in
+                SCNetworkReachabilityCreateWithAddress(nil, zeroSockAddress)
+            }
+        }
+        
+        var flags = SCNetworkReachabilityFlags()
+        if !SCNetworkReachabilityGetFlags(defaultRouteReachability!, &flags) {
+            return false
+        }
+        let isReachable = (flags.rawValue & UInt32(kSCNetworkFlagsReachable)) != 0
+        let needsConnection = (flags.rawValue & UInt32(kSCNetworkFlagsConnectionRequired)) != 0
+        return (isReachable && !needsConnection)
     }
 }
