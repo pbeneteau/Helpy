@@ -44,22 +44,18 @@ class locationHelp {
             self.countryCode = foundPlacemark.isoCountryCode
             self.postalCode = foundPlacemark.postalCode
             self.state = foundPlacemark.administrativeArea
-            print(self.state)
         }) { error in
             print("Error: \(error)")
         }
     }
     
     func updateUserLocation() {
-        var r = Location.getLocation(withAccuracy: .block, frequency: .oneShot, timeout: nil, onSuccess: { (location) in
+        _ = Location.getLocation(withAccuracy: .block, frequency: .oneShot, timeout: nil, onSuccess: { (location) in
             
             self.setLocation(location: location)
             
         }) { (last, err) in
             print("err \(err)")
-        }
-        r.onAuthorizationDidChange = { newStatus in
-            print("New status \(newStatus)")
         }
     }
     
@@ -72,8 +68,6 @@ class locationHelp {
                 let placemarks = placemarks,
                 let locationFromAdress = placemarks.first?.location
                 else {
-                    print("location from address not found")
-                    print("trying again...")
                     self.coordinatesFromAdress()
                     return
             }
@@ -81,13 +75,15 @@ class locationHelp {
         }
     }
     
-    func retrieveUserDatabaseAdress(userID: String) {
+    func retrieveUserDatabaseAdress(userID: String, finished: @escaping () -> Void) {
         
         let userRef = ref.child("users").child(userID)
         
         userRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
             let name = JSON(snapshot.value!)["address"].stringValue
+            self.forceEnd(data: name)
             self.address = name
+            finished()
         }) { (error) in
             print(error.localizedDescription)
         }
@@ -141,5 +137,8 @@ class locationHelp {
         countryCode = ""
         address = ""
         userHomeLocationAsk = CLLocation(latitude: 0.0, longitude: 0.0)
+    }
+    
+    func forceEnd(data : String) {
     }
 }

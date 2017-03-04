@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0820"
+   LastUpgradeVersion = "0700"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DAE6AAF05FA78E64F03E17BA3D9DD020"
+               BlueprintIdentifier = "6C4DBB1753FF59E2768CE91513CB630E"
                BuildableName = "Pods_EfreiApp.framework"
                BlueprintName = "Pods-EfreiApp"
                ReferencedContainer = "container:Pods.xcodeproj">
@@ -45,7 +45,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DAE6AAF05FA78E64F03E17BA3D9DD020"
+            BlueprintIdentifier = "6C4DBB1753FF59E2768CE91513CB630E"
             BuildableName = "Pods_EfreiApp.framework"
             BlueprintName = "Pods-EfreiApp"
             ReferencedContainer = "container:Pods.xcodeproj">

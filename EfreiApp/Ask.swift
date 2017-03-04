@@ -55,7 +55,11 @@ class askHelp: AnyObject {
         ref.child("asks").child(countryCode).child(state).child(task).child(taskKey).child("userIsAtHome").setValue(userIsAtHome)
         ref.child("asks").child(countryCode).child(state).child(task).child(taskKey).child("task").setValue(task)
         
-        ref.child("users").child((user?.uid)!).child("asks").child(task).setValue(taskKey)
+        ref.child("users").child((user?.uid)!).child("asks").child(taskKey).child("price").setValue(price)
+        ref.child("users").child((user?.uid)!).child("asks").child(taskKey).child("task").setValue(task)
+        ref.child("users").child((user?.uid)!).child("asks").child(taskKey).child("address").setValue(address)
+        ref.child("users").child((user?.uid)!).child("asks").child(taskKey).child("date").setValue(taskDate)
+        
         print("Done")
     }
     
@@ -75,7 +79,7 @@ class askHelp: AnyObject {
         return randomString
     }
     
-    // cConvert NSDate to String
+    // Convert NSDate to String
     func convertDateToString(dateToConvert : Date) -> String{
         let calendar = Calendar.current
         let dateFormatter = DateFormatter()

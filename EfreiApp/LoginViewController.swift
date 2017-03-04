@@ -140,18 +140,15 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
         dismissKeyboard()
         
         if ((emailField.text == "") || (passwordField.text == "") || (nameField.text == "") || (telField.text == "") || (adressField.text == "")) {
-            let alertController = UIAlertController(title: "Error", message: "Please enter all informations needed", preferredStyle: .alert)
             
-            let defaultAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-            alertController.addAction(defaultAction)
-            
-            present(alertController, animated: true, completion: nil)
+            messageAlert(title: "Error!", message: "Please enter all informations needed")
             
         } else {
             FIRAuth.auth()?.createUser(withEmail: emailField.text!, password: passwordField.text!) { (user, error) in
                 
                 if error == nil {
                     
+                    // Send data
                     self.ref.child("users").child(user!.uid).child("name").setValue(self.nameField.text)
                     self.ref.child("users").child(user!.uid).child("email").setValue(self.emailField.text)
                     self.ref.child("users").child(user!.uid).child("tel").setValue(self.telField.text)
@@ -160,15 +157,9 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
                     let vc = self.storyboard?.instantiateViewController(withIdentifier: "MenuVC")
                     self.present(vc!, animated: true, completion: nil)
                     
-                    
                 } else {
                     
-                    let alertController = UIAlertController(title: "Error", message: error?.localizedDescription, preferredStyle: .alert)
-                    
-                    let defaultAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-                    alertController.addAction(defaultAction)
-                    
-                    self.present(alertController, animated: true, completion: nil)
+                    self.messageAlert(title: "Error!", message: (error?.localizedDescription)!)
                 }
                 self.aiView.stopAnimating()
                 UIView.animateKeyframes(withDuration: 0.4, delay: 0, options: .allowUserInteraction, animations: {
@@ -186,13 +177,7 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
         if self.loginEmailField.text == "" || self.loginPasswordField.text == "" {
             
             //Alert to tell the user that there was an error because they didn't fill anything in the textfields because they didn't fill anything in
-            
-            let alertController = UIAlertController(title: "Error", message: "Please enter your password and email", preferredStyle: .alert)
-            
-            let defaultAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-            alertController.addAction(defaultAction)
-            
-            self.present(alertController, animated: true, completion: nil)
+            messageAlert(title: "Error!", message: "Please enter your password and email")
             
         } else {
             buttonLoadingAnimation()
@@ -200,21 +185,13 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
                 
                 if error == nil {
                     
-                    //Print into the console if successfully logged in
-                    print("You have successfully logged in")
-                    
                     //Go to the HomeViewController if the login is sucessful
                     let vc = self.storyboard?.instantiateViewController(withIdentifier: "MenuVC")
                     self.present(vc!, animated: true, completion: nil)
+                    
                 } else {
                     
-                    //Tells the user that there is an error and then gets firebase to tell them the error
-                    let alertController = UIAlertController(title: "Error", message: error?.localizedDescription, preferredStyle: .alert)
-                    
-                    let defaultAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-                    alertController.addAction(defaultAction)
-                    
-                    self.present(alertController, animated: true, completion: nil)
+                    self.messageAlert(title: "Error", message: (error?.localizedDescription)!)
                 }
                 self.aiView.stopAnimating()
                 UIView.animateKeyframes(withDuration: 0.4, delay: 0, options: .allowUserInteraction, animations: {
@@ -228,37 +205,31 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
         
         
         if self.loginEmailField.text == "" {
-            let alertController = UIAlertController(title: "Oops!", message: "Please enter an email.", preferredStyle: .alert)
-            
-            let defaultAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-            alertController.addAction(defaultAction)
-            
-            present(alertController, animated: true, completion: nil)
+
+            messageAlert(title: "Oops!", message: "Please enter an email.")
             
         } else {
             buttonLoadingAnimation()
             FIRAuth.auth()?.sendPasswordReset(withEmail: self.loginEmailField.text!, completion: { (error) in
                 
-                var title = ""
-                var message = ""
-                
                 if error != nil {
-                    title = "Error!"
-                    message = (error?.localizedDescription)!
+                    self.messageAlert(title: "Error!", message: (error?.localizedDescription)!)
+
                 } else {
-                    title = "Succès!"
-                    message = "A mail have been sent"
+                    self.messageAlert(title: "Sucess!", message: "A mail have been sent.")
                     self.loginEmailField.text = ""
                 }
-                
-                let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                
-                let defaultAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-                alertController.addAction(defaultAction)
-                
-                self.present(alertController, animated: true, completion: nil)
             })
         }
+    }
+    
+    func messageAlert(title: String, message: String) {
+       
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        let defaultAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alertController.addAction(defaultAction)
+        present(alertController, animated: true, completion: nil)
     }
     
     
@@ -272,14 +243,11 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
     
     func setPredictiveState(state: UITextAutocorrectionType) {
         
-        nameField.autocorrectionType = state
-        emailField.autocorrectionType = state
-        passwordField.autocorrectionType = state
-        adressField.autocorrectionType = state
-        telField.autocorrectionType = state
+        let array = [nameField, emailField, passwordField, adressField, telField, loginPasswordField, loginEmailField]
         
-        loginPasswordField.autocorrectionType = state
-        loginEmailField.autocorrectionType = state
+        for object in array {
+            object?.autocorrectionType = state
+        }
     }
     
     func animation() {
@@ -307,7 +275,6 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
         })
     }
     
-    
     func respondToSwipeGesture(gesture: UIGestureRecognizer) {
         if let swipeGesture = gesture as? UISwipeGestureRecognizer {
             switch swipeGesture.direction {
@@ -319,8 +286,6 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
                 if actualView == "login" {
                     animation()
                 }
-                
-                
             default:
                 break
             }

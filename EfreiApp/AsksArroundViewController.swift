@@ -31,8 +31,8 @@ class AsksArroundViewController: UIViewController, UITableViewDelegate, UITableV
         super.viewDidLoad()
         
         initLocationDetails()
-        fetchAsks(countryCode: "FR", state: "Île-de-France", distanceMax: 1000)
         
+        tableView.backgroundColor = UIColor(red:0.90, green:0.36, blue:0.33, alpha:1.0)
         tableView.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(refreshData(sender:)), for: .valueChanged)
         
@@ -41,6 +41,10 @@ class AsksArroundViewController: UIViewController, UITableViewDelegate, UITableV
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        fetchAsks(countryCode: locationClass.getCountryCode(), state: locationClass.getState(), distanceMax: 1000)
     }
     
     func initLocationDetails() {
@@ -57,8 +61,11 @@ class AsksArroundViewController: UIViewController, UITableViewDelegate, UITableV
         let task: asksArround
         task = tasksList[indexPath.row]
         
+        cell.backgroundColor = UIColor(red:1.00, green:0.39, blue:0.36, alpha:1.0)
         cell.textLabel?.text = task.type
+        cell.textLabel?.textColor = UIColor.white
         cell.detailTextLabel?.text = task.date
+        cell.detailTextLabel?.textColor = UIColor.white
         
         return cell
     }
@@ -82,7 +89,7 @@ class AsksArroundViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func refreshData(sender: UIRefreshControl) {
-        fetchAsks(countryCode: "FR", state: "Île-de-France", distanceMax: 1000)
+        fetchAsks(countryCode: locationClass.getCountryCode(), state: locationClass.getState(), distanceMax: 1000)
         refreshControl.endRefreshing()
     }
 
@@ -113,7 +120,6 @@ class AsksArroundViewController: UIViewController, UITableViewDelegate, UITableV
                         }
                     }
                 }
-                print(self.tasksList)
                 self.tableView.reloadData()
             }
         })

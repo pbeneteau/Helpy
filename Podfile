@@ -11,14 +11,12 @@ target 'EfreiApp' do
   pod 'Firebase/Core'
   pod 'Firebase/Storage'
   pod 'BWWalkthrough'
-  pod 'Hero'
-  pod 'PermissionScope'
   pod 'SwiftLocation', '>= 1.0.6'
   pod 'SwiftyJSON'
   pod 'Firebase/Crash'
-  pod 'Alamofire'
+  pod 'DateTimePicker'
   pod 'NVActivityIndicatorView'
-  
+  pod 'Sparrow/Modules/RequestPermission', :git => 'https://github.com/IvanVorobei/Sparrow.git’  
   pod 'Spring', :git => 'https://github.com/MengTo/Spring.git', :branch => 'swift3'
 
   target 'EfreiAppTests' do

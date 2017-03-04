@@ -12,16 +12,18 @@ import MapKit
 import Firebase
 import SwiftLocation
 import NVActivityIndicatorView
+import DateTimePicker
+import EventKit
 
 class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSource, NVActivityIndicatorViewable {
    
     @IBOutlet weak var mapView: MKMapView!
-    @IBOutlet weak var datePicker: UIDatePicker!
     @IBOutlet weak var priceField: UITextField!
     
     @IBOutlet weak var taskPicker: UIPickerView!
     @IBOutlet weak var selection: UILabel!
     
+    // Variables
     var userAddress: String!
     var countryCode: String!
     var state: String!
@@ -29,6 +31,8 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
     var homeLocation: CLLocation!
     var price: String!
     var taskSelected: String = ""
+    var pickerData: [String] = [String]()
+    var dateSelected: Date!
     
     // Classes
     let locationClass = locationHelp()
@@ -38,29 +42,19 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
     let ref = FIRDatabase.database().reference()
     let user = FIRAuth.auth()?.currentUser
     
-    // Variables
-    var pickerData: [String] = [String]()
-    
+    let eventStore : EKEventStore = EKEventStore()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
-        taskPicker.dataSource = self
-        taskPicker.delegate = self
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         initLocationDetails()
         getTaskList()
         initMapView()
-        initDatePicker()
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        
         // Keyboard init
         addObservers()
         setDelegates(priceField)
-        
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -81,7 +75,6 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
     override func viewDidAppear(_ animated: Bool) {
         stopAnimating()
     }
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
     }
@@ -89,30 +82,15 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
     func initLocationDetails() {
         
         locationClass.updateUserLocation()
-        locationClass.retrieveUserDatabaseAdress(userID: (user?.uid)!)
+        locationClass.retrieveUserDatabaseAdress(userID: (user?.uid)!) {
+            
+        }
         locationClass.coordinatesFromAdress()
     }
     
     // Map view initialisation
     func initMapView() {
-        print("Initialising mapView...")
         mapView.setUserTrackingMode(.follow, animated: true)
-        print("Done")
-    }
-    
-    // Date picker initialiastion
-    func initDatePicker() {
-        
-        print("Initialising datePicker...")
-        let gregorian: NSCalendar = NSCalendar(calendarIdentifier: NSCalendar.Identifier.gregorian)!
-        let currentDate: NSDate = NSDate()
-        let components: NSDateComponents = NSDateComponents()
-        
-        components.minute = -1
-        let minDate: NSDate = gregorian.date(byAdding: components as DateComponents, to: currentDate as Date, options: NSCalendar.Options(rawValue: 0))! as NSDate
-        
-        self.datePicker.minimumDate = minDate as Date
-        print("Done")
     }
     
     // Force data fetch to end
@@ -139,7 +117,6 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
     func getTaskList() {
         
         let tasksRef = ref.child("tasks")
-        print("Fetching tasks...")
         tasksRef.observe(.value, with: {
             (snapshot) in
             for tasks in snapshot.children {
@@ -164,6 +141,17 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
             alert.addAction(UIAlertAction(title: "Continue", style: UIAlertActionStyle.default, handler: {(alert:
                 UIAlertAction!) in
                 self.askClass.sendData(price: price, task: task, date: date, address: address, location: location, countryCode: countryCode, state: state, userIsAtHome: false)
+                let alert2 = UIAlertController(title: "Save to calendar?", message: "Wanna save this event to your calendar?", preferredStyle: UIAlertControllerStyle.alert)
+                alert2.addAction(UIAlertAction(title: "Yes", style: UIAlertActionStyle.default, handler: {(alert:
+                    UIAlertAction!) in
+                    print("Adding to calendar")
+                    let calendar = NSCalendar.current
+                    let hoursAddedDate = calendar.date(byAdding: .hour, value: 2, to: date)
+                    self.addEventToCalendar(title: task, description: address, startDate: date, endDate: hoursAddedDate!)
+                    
+                }))
+                self.present(alert2, animated: true, completion: nil)
+                
             }))
             alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: {(alert:
                 UIAlertAction!) in
@@ -177,11 +165,9 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
             self.present(alert, animated: true, completion: nil)
         }
     }
-    // sendData(price: String, task: String, date: Date, address: String, location: CLLocation, countryCode: String, state: String)
-    // Submit button
+
     @IBAction func helpButton(_ sender: Any) {
       
-        
         userAddress = locationClass.getUserDatabaseAdress()
         countryCode = locationClass.getCountryCode()
         state = locationClass.getState()
@@ -190,7 +176,7 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
         price = priceField.text
         
         if checkNilValues() == true {
-            sumbitTaskRequest(price: priceField.text!, task: taskSelected, date: datePicker.date, address: userAddress, location: userLocation, countryCode: countryCode, state: state)
+            sumbitTaskRequest(price: priceField.text!, task: taskSelected, date: dateSelected, address: userAddress, location: userLocation, countryCode: countryCode, state: state)
         }
     }
     
@@ -201,16 +187,13 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
     
     func checkNilValues() -> Bool{
         
-        if userAddress == nil {
-            print("userAddress is empty")
-            return false
-        } else if countryCode == nil{
-            print("countryCode is empty")
-            return false
-        } else if state == nil{
-            print("state is empty")
-            return false
-        } else if userLocation == nil{
+        let array = [userAddress, countryCode, state, taskSelected, price]
+        for object in array {
+            if object == nil {
+                print("fill out all values!")
+                return false
+        }}
+        if userLocation == nil{
             print("userLocation is empty")
             return false
         } else if homeLocation == nil{
@@ -219,13 +202,51 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
         } else if taskSelected == "" {
             print("taskSelected is empty")
             return false
-        } else if price == nil {
-            print("price is empty")
-            return false
         }
         return true
     }
-    ///////////////////////////////////////////////
     
+    ///////////////////////////////////////////////
+    @IBAction func datePicker(_ sender: Any) {
+        dismissKeyboard()
+        let picker = DateTimePicker.show()
+        picker.highlightColor = UIColor(red:0.91, green:0.30, blue:0.24, alpha:1.0)
+        picker.completionHandler = { date in
+            self.dateSelected = picker.selectedDate
+        }
+    }
+    
+    func messageAlert(title: String, message: String) {
+        
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        let defaultAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alertController.addAction(defaultAction)
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    func addEventToCalendar(title: String, description: String?, startDate: Date, endDate: Date, completion: ((_ success: Bool, _ error: NSError?) -> Void)? = nil) {
+        let eventStore = EKEventStore()
+        
+        eventStore.requestAccess(to: .event, completion: { (granted, error) in
+            if (granted) && (error == nil) {
+                let event = EKEvent(eventStore: eventStore)
+                event.title = title
+                event.startDate = startDate as Date
+                event.endDate = endDate as Date
+                event.notes = description
+                event.calendar = eventStore.defaultCalendarForNewEvents
+                do {
+                    try eventStore.save(event, span: .thisEvent)
+                } catch let e as NSError {
+                    completion?(false, e)
+                    return
+                }
+                completion?(true, nil)
+            } else {
+                completion?(false, error as NSError?)
+            }
+        })
+    }
 
 }

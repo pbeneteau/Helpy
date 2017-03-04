@@ -7,8 +7,6 @@
 //
 
 import UIKit
-import CoreLocation
-
 
 struct asksArround{
     
