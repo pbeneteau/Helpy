@@ -34,18 +34,15 @@ class ScoreViewController: UIViewController {
     }
     
     func initInfos() {
-        totalAsks = mainUser().getTotalAsks()
-        totalHelps = mainUser().getTotalHelps()
-        ratioHA = mainUser().getRationHA()
-        averageMark = mainUser().getAverageMark()
-        initLabels()
-    }
-    
-    func initLabels() {
-        totalAsksLabel.text = "Total asks sent: \(totalAsks!)"
-        totalHelpsLabel.text = "Total helps completed: \(totalHelps!)"
-        ratioLabel.text = "Ratio Help/Task: \(ratioHA!)"
-        averageMarkLabel.text = "Average mark: \(averageMark!)"
+        mainUser().initAverageMark{ mark in
+            self.averageMarkLabel.text = "Average mark: \(mark)"
+        }
+        mainUser().initTotalHelps{ total in
+            self.totalHelpsLabel.text = "Total helps completed: \(total)"
+        }
+        mainUser().initTotalAsks{ total in
+            self.totalAsksLabel.text = "Total asks sent: \(total)"
+        }
     }
 
 }

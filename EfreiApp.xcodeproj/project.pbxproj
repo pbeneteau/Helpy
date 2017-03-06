@@ -26,9 +26,10 @@
 		388067AF1E2FB02200DB26A0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 388067AE1E2FB02200DB26A0 /* GoogleService-Info.plist */; };
 		388067B11E2FB36100DB26A0 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388067B01E2FB36100DB26A0 /* MainViewController.swift */; };
 		388067B71E2FBC7C00DB26A0 /* keyboardUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388067B61E2FBC7C00DB26A0 /* keyboardUtils.swift */; };
-		389984D71E6A07DB0023ECBF /* CurrentUserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389984D61E6A07DB0023ECBF /* CurrentUserProfileViewController.swift */; };
+		389984D71E6A07DB0023ECBF /* MainProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389984D61E6A07DB0023ECBF /* MainProfileViewController.swift */; };
 		389984DB1E6A285D0023ECBF /* ScoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389984DA1E6A285D0023ECBF /* ScoreViewController.swift */; };
 		389984DF1E6A30D90023ECBF /* DeviceInfos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389984DE1E6A30D90023ECBF /* DeviceInfos.swift */; };
+		389984E11E6B32580023ECBF /* AvailabilityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389984E01E6B32580023ECBF /* AvailabilityViewController.swift */; };
 		38CF80A01E4F804200FB3F08 /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38CF809F1E4F804200FB3F08 /* Location.swift */; };
 		38E0D6271E6071B40008A5B9 /* Ask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E0D6261E6071B40008A5B9 /* Ask.swift */; };
 		38E0D6291E60778F0008A5B9 /* askViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E0D6281E60778F0008A5B9 /* askViewController.swift */; };
@@ -84,9 +85,10 @@
 		388067AE1E2FB02200DB26A0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		388067B01E2FB36100DB26A0 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		388067B61E2FBC7C00DB26A0 /* keyboardUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = keyboardUtils.swift; sourceTree = "<group>"; };
-		389984D61E6A07DB0023ECBF /* CurrentUserProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentUserProfileViewController.swift; sourceTree = "<group>"; };
+		389984D61E6A07DB0023ECBF /* MainProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainProfileViewController.swift; sourceTree = "<group>"; };
 		389984DA1E6A285D0023ECBF /* ScoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScoreViewController.swift; sourceTree = "<group>"; };
 		389984DE1E6A30D90023ECBF /* DeviceInfos.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceInfos.swift; sourceTree = "<group>"; };
+		389984E01E6B32580023ECBF /* AvailabilityViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AvailabilityViewController.swift; sourceTree = "<group>"; };
 		38CF809F1E4F804200FB3F08 /* Location.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		38E0D6261E6071B40008A5B9 /* Ask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ask.swift; sourceTree = "<group>"; };
 		38E0D6281E60778F0008A5B9 /* askViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = askViewController.swift; sourceTree = "<group>"; };
@@ -166,8 +168,8 @@
 				38133E631E2FA60D00506871 /* AppDelegate.swift */,
 				38133E651E2FA60D00506871 /* ViewController.swift */,
 				381A06F61E659B1F00F6BAA3 /* Navigation */,
-				381A06F81E659B5A00F6BAA3 /* MainView */,
 				381A06F91E659B6300F6BAA3 /* Login */,
+				381A06F81E659B5A00F6BAA3 /* MainView */,
 				38E0D62A1E6077980008A5B9 /* Ask */,
 				381A06F71E659B3F00F6BAA3 /* Location */,
 				38E41B181E69CE780090FB81 /* User */,
@@ -276,7 +278,8 @@
 		38E41B181E69CE780090FB81 /* User */ = {
 			isa = PBXGroup;
 			children = (
-				389984D61E6A07DB0023ECBF /* CurrentUserProfileViewController.swift */,
+				389984E01E6B32580023ECBF /* AvailabilityViewController.swift */,
+				389984D61E6A07DB0023ECBF /* MainProfileViewController.swift */,
 				389984DA1E6A285D0023ECBF /* ScoreViewController.swift */,
 				38FA09A51E32765700C5A9F0 /* User.swift */,
 			);
@@ -595,7 +598,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-EfreiApp/Pods-EfreiApp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		E87FFE85B20FF1B671073FDB /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -629,6 +631,7 @@
 				38133E661E2FA60D00506871 /* ViewController.swift in Sources */,
 				38F13DA11E61E3990081028F /* AsksArroundViewController.swift in Sources */,
 				389984DF1E6A30D90023ECBF /* DeviceInfos.swift in Sources */,
+				389984E11E6B32580023ECBF /* AvailabilityViewController.swift in Sources */,
 				38CF80A01E4F804200FB3F08 /* Location.swift in Sources */,
 				3878090D1E2FAA5400E44CD2 /* LoginViewController.swift in Sources */,
 				38E41B171E69B1DC0090FB81 /* UserAsks.swift in Sources */,
@@ -640,7 +643,7 @@
 				38E0D6271E6071B40008A5B9 /* Ask.swift in Sources */,
 				38F13DA31E61E58B0081028F /* AsksArround.swift in Sources */,
 				38133E641E2FA60D00506871 /* AppDelegate.swift in Sources */,
-				389984D71E6A07DB0023ECBF /* CurrentUserProfileViewController.swift in Sources */,
+				389984D71E6A07DB0023ECBF /* MainProfileViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

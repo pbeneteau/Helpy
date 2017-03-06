@@ -13,7 +13,7 @@ import SwiftLocation
 import SwiftyJSON
 
 
-class askHelp: AnyObject {
+class AskHelp: AnyObject {
     
     let locationClass = locationHelp()
     
@@ -54,11 +54,13 @@ class askHelp: AnyObject {
         ref.child("asks").child(countryCode).child(state).child(task).child(taskKey).child("address").setValue(address)
         ref.child("asks").child(countryCode).child(state).child(task).child(taskKey).child("userIsAtHome").setValue(userIsAtHome)
         ref.child("asks").child(countryCode).child(state).child(task).child(taskKey).child("task").setValue(task)
+        ref.child("asks").child(countryCode).child(state).child(task).child(taskKey).child("nsDate").setValue("\(date)")
         
         ref.child("users").child((user?.uid)!).child("asks").child(taskKey).child("price").setValue(price)
         ref.child("users").child((user?.uid)!).child("asks").child(taskKey).child("task").setValue(task)
         ref.child("users").child((user?.uid)!).child("asks").child(taskKey).child("address").setValue(address)
         ref.child("users").child((user?.uid)!).child("asks").child(taskKey).child("date").setValue(taskDate)
+        ref.child("users").child((user?.uid)!).child("asks").child(taskKey).child("nsDate").setValue("\(date)")
         
         print("Done")
     }

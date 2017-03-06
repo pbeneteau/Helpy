@@ -19,7 +19,6 @@ class locationHelp {
     
     let ref = FIRDatabase.database().reference()
     
-    
     private var userHomeLocation: CLLocation!
     private var location: CLLocation!
     private var city: String!
@@ -31,59 +30,67 @@ class locationHelp {
     
     
     // Location
-    func setLocation(location: CLLocation) {
-        self.location = location
-        self.getLocationDetails(location: location)
+    func setLocation(completionHandler: @escaping (_ success: Bool ) -> ()) {
+        
+        updateUserLocation { locationFound in
+            print(locationFound)
+            self.getLocationDetails(location1: locationFound) { success in
+                if success {
+                    print("success in settings locations details")
+                    completionHandler(true)
+                }
+            }
+        }
     }
     
-    
     // Get current user City, PostalCode and Country code
-    func getLocationDetails(location: CLLocation) {
-        _ = Location.reverse(coordinates: location.coordinate, onSuccess: { foundPlacemark in
+    func getLocationDetails(location1: CLLocation, completionHandler: @escaping (_ success: Bool) -> ()) {
+        
+        _ = Location.reverse(coordinates: location1.coordinate, onSuccess: { foundPlacemark in
             self.city = foundPlacemark.locality
             self.countryCode = foundPlacemark.isoCountryCode
             self.postalCode = foundPlacemark.postalCode
             self.state = foundPlacemark.administrativeArea
+            completionHandler(true)
         }) { error in
             print("Error: \(error)")
         }
     }
     
-    func updateUserLocation() {
+    func updateUserLocation(completionHandler: @escaping (_ locationFound: CLLocation) -> ()) {
         _ = Location.getLocation(withAccuracy: .block, frequency: .oneShot, timeout: nil, onSuccess: { (location) in
-            
-            self.setLocation(location: location)
-            
+            self.location = location
+            completionHandler(location)
         }) { (last, err) in
             print("err \(err)")
         }
     }
     
     // Get coordinates from adress
-    func coordinatesFromAdress() {
+    func coordinatesFromAdress(address: String, completionHandler: @escaping (_ locationFound: CLLocation) -> ()) {
         
         let geoCoder = CLGeocoder()
-        geoCoder.geocodeAddressString(self.address!) { (placemarks, error) in
+        geoCoder.geocodeAddressString(address) { (placemarks, error) in
             guard
                 let placemarks = placemarks,
                 let locationFromAdress = placemarks.first?.location
                 else {
-                    self.coordinatesFromAdress()
+                    print("error getting location from address")
                     return
             }
             self.userHomeLocation = locationFromAdress
+            completionHandler(self.userHomeLocation)
         }
     }
     
-    func retrieveUserDatabaseAdress(userID: String, finished: @escaping () -> Void) {
+    func retrieveUserDatabaseAdress(userID: String, completionHandler: @escaping (_ address: String) -> ()) {
         
         let userRef = ref.child("users").child(userID)
         
         userRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
-            let name = JSON(snapshot.value!)["address"].stringValue
-            self.forceEnd(data: name)
-            self.address = name
-            finished()
+            let address = JSON(snapshot.value!)["address"].stringValue
+            self.address = address
+            completionHandler(address)
         }) { (error) in
             print(error.localizedDescription)
         }

@@ -16,7 +16,7 @@ import DateTimePicker
 import EventKit
 
 class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSource, NVActivityIndicatorViewable {
-   
+    
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var priceField: UITextField!
     
@@ -36,7 +36,7 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
     
     // Classes
     let locationClass = locationHelp()
-    let askClass = askHelp()
+    let askClass = AskHelp()
     
     // Firebase
     let ref = FIRDatabase.database().reference()
@@ -49,7 +49,7 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         initLocationDetails()
-        getTaskList()
+        initTaskPicker()
         initMapView()
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
         // Keyboard init
@@ -62,11 +62,12 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
         tap.delegate = self
         view.isUserInteractionEnabled = true
         view.addGestureRecognizer(tap)
-
+        
+        
     }
     override func viewWillDisappear(_ animated: Bool) {
         removeObservers()
-
+        
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -81,11 +82,26 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
     
     func initLocationDetails() {
         
-        locationClass.updateUserLocation()
-        locationClass.retrieveUserDatabaseAdress(userID: (user?.uid)!) {
-            
+        locationClass.setLocation { success in
+            if success {
+                self.locationClass.retrieveUserDatabaseAdress(userID: (self.user?.uid)!) { address in
+                    print(address)
+                    self.userAddress = address
+                    self.locationClass.coordinatesFromAdress(address: address) { location in
+                        print("Done")
+                        self.initInfos()
+                    }
+                }
+            }
         }
-        locationClass.coordinatesFromAdress()
+    }
+    
+    func initInfos() {
+        userAddress = locationClass.getUserDatabaseAdress()
+        countryCode = locationClass.getCountryCode()
+        state = locationClass.getState()
+        userLocation = locationClass.getLocation()
+        homeLocation = locationClass.getUserHomeLocation()
     }
     
     // Map view initialisation
@@ -93,8 +109,8 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
         mapView.setUserTrackingMode(.follow, animated: true)
     }
     
-    // Force data fetch to end
     func initTaskPicker() {
+        getTaskList { success in }
     }
     
     // Task picker initialisation
@@ -102,6 +118,7 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
         return 1
     }
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        
         return pickerData.count
     }
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
@@ -114,7 +131,7 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
     }
     
     // Retrieve all tasks type from database
-    func getTaskList() {
+    func getTaskList(completionHandler: @escaping (_ tasks: Bool) -> ()) {
         
         let tasksRef = ref.child("tasks")
         tasksRef.observe(.value, with: {
@@ -122,9 +139,10 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
             for tasks in snapshot.children {
                 self.pickerData.append((tasks as AnyObject).key)
             }
-            self.initTaskPicker()
+            completionHandler(true)
         }) { (error) in
             print(error.localizedDescription)
+            completionHandler(false)
         }
     }
     
@@ -142,8 +160,13 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
                 UIAlertAction!) in
                 self.askClass.sendData(price: price, task: task, date: date, address: address, location: location, countryCode: countryCode, state: state, userIsAtHome: false)
                 let alert2 = UIAlertController(title: "Save to calendar?", message: "Wanna save this event to your calendar?", preferredStyle: UIAlertControllerStyle.alert)
+                alert2.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.cancel, handler: {(alert:
+                    UIAlertAction!) in
+                    print("Cancel pressed")
+                }))
                 alert2.addAction(UIAlertAction(title: "Yes", style: UIAlertActionStyle.default, handler: {(alert:
                     UIAlertAction!) in
+                    
                     print("Adding to calendar")
                     let calendar = NSCalendar.current
                     let hoursAddedDate = calendar.date(byAdding: .hour, value: 2, to: date)
@@ -151,7 +174,6 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
                     
                 }))
                 self.present(alert2, animated: true, completion: nil)
-                
             }))
             alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: {(alert:
                 UIAlertAction!) in
@@ -161,18 +183,13 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
                 UIAlertAction!) in
                 print("New address")
             }))
-
+            
             self.present(alert, animated: true, completion: nil)
         }
     }
-
+    
     @IBAction func helpButton(_ sender: Any) {
-      
-        userAddress = locationClass.getUserDatabaseAdress()
-        countryCode = locationClass.getCountryCode()
-        state = locationClass.getState()
-        userLocation = locationClass.getLocation()
-        homeLocation = locationClass.getUserHomeLocation()
+        
         price = priceField.text
         
         if checkNilValues() == true {
@@ -192,7 +209,7 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
             if object == nil {
                 print("fill out all values!")
                 return false
-        }}
+            }}
         if userLocation == nil{
             print("userLocation is empty")
             return false
@@ -214,15 +231,6 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
         picker.completionHandler = { date in
             self.dateSelected = picker.selectedDate
         }
-    }
-    
-    func messageAlert(title: String, message: String) {
-        
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        
-        let defaultAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-        alertController.addAction(defaultAction)
-        present(alertController, animated: true, completion: nil)
     }
     
     func addEventToCalendar(title: String, description: String?, startDate: Date, endDate: Date, completion: ((_ success: Bool, _ error: NSError?) -> Void)? = nil) {
@@ -248,5 +256,5 @@ class askViewController: keyboardUtils, UIPickerViewDelegate, UIPickerViewDataSo
             }
         })
     }
-
+    
 }

@@ -27,6 +27,9 @@ class AsksArroundViewController: UIViewController, UITableViewDelegate, UITableV
     
     private let refreshControl = UIRefreshControl()
     
+    private var countryCode: String?
+    private var state: String?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -38,17 +41,29 @@ class AsksArroundViewController: UIViewController, UITableViewDelegate, UITableV
         
     }
     
+    func initLocationDetails() {
+        
+        locationClass.setLocation { success in
+            if success {
+                print("Done")
+                self.initInfos()
+            }
+        }
+    }
+    
+    func initInfos() {
+        self.countryCode =  self.locationClass.getCountryCode()
+        self.state = self.locationClass.getState()
+        fetchAsks()
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        fetchAsks(countryCode: locationClass.getCountryCode(), state: locationClass.getState(), distanceMax: 1000)
-    }
-    
-    func initLocationDetails() {
-        locationClass.updateUserLocation()
+        
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -57,7 +72,7 @@ class AsksArroundViewController: UIViewController, UITableViewDelegate, UITableV
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellId)
-    
+        
         let task: asksArround
         task = tasksList[indexPath.row]
         
@@ -89,41 +104,47 @@ class AsksArroundViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func refreshData(sender: UIRefreshControl) {
-        fetchAsks(countryCode: locationClass.getCountryCode(), state: locationClass.getState(), distanceMax: 1000)
+        fetchAsks()
         refreshControl.endRefreshing()
     }
-
-    func fetchAsks(countryCode: String, state: String, distanceMax: Double) {
-        
-        self.tasksList.removeAll()
-        
-        refHande = ref.child("asks").child(countryCode).child(state).observe(.childAdded, with: { (snapshot) in
+    
+    func fetchAsks() {
+        if (state == nil) || (countryCode == nil) {
+            _ = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(fetchAsks), userInfo: nil, repeats: false);
             
-            if let dict = snapshot.value as? [String : [String:Any]] {
+        } else {
+            self.tasksList.removeAll()
+            
+            refHande = ref.child("asks").child(self.countryCode!).child(self.state!).observe(.childAdded, with: { (snapshot) in
                 
-                for (_, value) in dict {
-                    if let task: String = value["task"] as? String {
-                        if let taskDate: String = value["date"] as? String {
-                            if let taskLocation: String = value["location"] as? String {
-                                if let taskAddress: String = value["address"] as? String {
-                                let ss = taskLocation.components(separatedBy: CharacterSet(charactersIn: "<,>")).flatMap({
-                                    Double($0)
-                                })
-                                    let c = CLLocation(latitude: ss[0], longitude: ss[1])
-                                    let taskDistance: Double = self.locationClass.getLocationsDistance(location1: c, location2: self.locationClass.getLocation())
-                                    if taskDistance <= distanceMax {
-                                        let taskArray = asksArround(date: taskDate, type: task, distance: taskDistance, address: taskAddress)
-                                        self.tasksList.append(taskArray)
+                if let dict = snapshot.value as? [String : [String:Any]] {
+                    
+                    for (_, value) in dict {
+                        if let task: String = value["task"] as? String {
+                            if let taskDate: String = value["date"] as? String {
+                                if let taskLocation: String = value["location"] as? String {
+                                    if let taskAddress: String = value["address"] as? String {
+                                        if let nsdate: String = value["nsDate"] as? String {
+                                            let ss = taskLocation.components(separatedBy: CharacterSet(charactersIn: "<,>")).flatMap({
+                                                Double($0)
+                                            })
+                                            let c = CLLocation(latitude: ss[0], longitude: ss[1])
+                                            let taskDistance: Double = self.locationClass.getLocationsDistance(location1: c, location2: self.locationClass.getLocation())
+                                            if taskDistance <= 1000 {
+                                                let taskArray = asksArround(date: taskDate, type: task, distance: taskDistance, address: taskAddress, nsDate: nsdate)
+                                                self.tasksList.append(taskArray)
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                    self.tableView.reloadData()
                 }
-                self.tableView.reloadData()
-            }
-        })
+            })
+        }
     }
     
-
+    
 }

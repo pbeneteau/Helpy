@@ -9,9 +9,7 @@
 import Foundation
 import SystemConfiguration
 
-class deviceInfos {
-    
-    
+class DeviceInfos {
     func isInternetAvailable() -> Bool
     {
         var zeroAddress = sockaddr_in()

@@ -9,17 +9,23 @@
 import UIKit
 import Firebase
 import NVActivityIndicatorView
+import CoreLocation
 
 class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
     
+    // Sign in
     @IBOutlet weak var emailField: UITextField!
     @IBOutlet weak var passwordField: UITextField!
     @IBOutlet weak var nameField: UITextField!
     @IBOutlet weak var telField: UITextField!
     @IBOutlet weak var adressField: UITextField!
+    @IBOutlet weak var lastNameField: UITextField!
+    @IBOutlet weak var zipcodeField: UITextField!
+    @IBOutlet weak var countryField: UITextField!
     
+    
+    // Sign up
     @IBOutlet weak var loginEmailField: UITextField!
-    
     @IBOutlet weak var loginPasswordField: UITextField!
     
     @IBOutlet weak var loginView: UIView!
@@ -28,6 +34,8 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
     @IBOutlet weak var selectionBar: UIView!
     @IBOutlet weak var SignInButton: UIButton!
     @IBOutlet weak var SignUpButton: UIButton!
+    
+    var state: String = ""
     
     let x = UIScreen.main.bounds.maxX/2 - 25
     
@@ -50,6 +58,7 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
         
         loginView.frame.origin.x = 39.5
         signInView.frame.origin.x = 39.5 - 400
+        
         initButtons()
         
         setPredictiveState(state: .no)
@@ -60,7 +69,7 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
         addObservers()
         
         // delegates for textFields
-        setDelegates(nameField, emailField, passwordField, loginEmailField,  loginPasswordField, telField, adressField)
+        setDelegates(nameField, emailField, passwordField, loginEmailField,  loginPasswordField, telField, adressField, countryField, lastNameField, zipcodeField)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -139,7 +148,7 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
     @IBAction func signInButtonAction(_ sender: Any) {
         dismissKeyboard()
         
-        if ((emailField.text == "") || (passwordField.text == "") || (nameField.text == "") || (telField.text == "") || (adressField.text == "")) {
+        if ((emailField.text == "") || (passwordField.text == "") || (nameField.text == "") || (telField.text == "") || (adressField.text == "") || (countryField.text == "") || (zipcodeField.text == "") || (lastNameField.text == "") || state == ""){
             
             messageAlert(title: "Error!", message: "Please enter all informations needed")
             
@@ -147,12 +156,26 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
             FIRAuth.auth()?.createUser(withEmail: emailField.text!, password: passwordField.text!) { (user, error) in
                 
                 if error == nil {
+                    self.buttonLoadingAnimation()
                     
                     // Send data
-                    self.ref.child("users").child(user!.uid).child("name").setValue(self.nameField.text)
+                    self.ref.child("users").child(user!.uid).child("firstName").setValue(self.nameField.text)
+                    self.ref.child("users").child(user!.uid).child("lastName").setValue(self.lastNameField.text)
                     self.ref.child("users").child(user!.uid).child("email").setValue(self.emailField.text)
                     self.ref.child("users").child(user!.uid).child("tel").setValue(self.telField.text)
                     self.ref.child("users").child(user!.uid).child("address").setValue(self.adressField.text)
+                    self.ref.child("users").child(user!.uid).child("zipCode").setValue(self.zipcodeField.text)
+                    self.ref.child("users").child(user!.uid).child("country").setValue(self.countryField.text)
+                    self.ref.child("users").child(user!.uid).child("state").setValue(self.state)
+                   
+                    // Send other default infos
+                    let days = ["monday", "tuesday", "wednesday", "friday", "thursday", "saturday", "sunday", "mondayAm", "tuesdayAm", "wednesdayAm", "fridayAm", "thursdayAm", "saturdayAm", "sundayAm"]
+                    
+                    for n in 0...13 {
+                        self.ref.child("users").child((user?.uid)!).child("availability").child(days[n]).setValue(true)
+                    }
+                    self.ref.child("users").child((user?.uid)!).child("mark").setValue(0)
+                    self.ref.child("users").child((user?.uid)!).child("totalHelps").setValue(0)
                     
                     let vc = self.storyboard?.instantiateViewController(withIdentifier: "MenuVC")
                     self.present(vc!, animated: true, completion: nil)
@@ -180,11 +203,11 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
             messageAlert(title: "Error!", message: "Please enter your password and email")
             
         } else {
-            buttonLoadingAnimation()
+            
             FIRAuth.auth()?.signIn(withEmail: self.loginEmailField.text!, password: self.loginPasswordField.text!) { (user, error) in
                 
                 if error == nil {
-                    
+                    self.buttonLoadingAnimation()
                     //Go to the HomeViewController if the login is sucessful
                     let vc = self.storyboard?.instantiateViewController(withIdentifier: "MenuVC")
                     self.present(vc!, animated: true, completion: nil)
@@ -203,13 +226,12 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
     
     @IBAction func resetPassword(_ sender: Any) {
         
-        
         if self.loginEmailField.text == "" {
 
             messageAlert(title: "Oops!", message: "Please enter an email.")
             
         } else {
-            buttonLoadingAnimation()
+            
             FIRAuth.auth()?.sendPasswordReset(withEmail: self.loginEmailField.text!, completion: { (error) in
                 
                 if error != nil {
@@ -288,6 +310,28 @@ class LoginViewController: keyboardUtils, NVActivityIndicatorViewable {
                 }
             default:
                 break
+            }
+        }
+    }
+    
+    @IBAction func zipCodeEditingEnd(_ sender: Any) {
+        if (zipcodeField.text != "") {
+            getStateFromZip(zipCode: zipcodeField.text!)
+        }
+    }
+    
+    func getStateFromZip(zipCode: String) {
+        let zipCode = zipCode
+        
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(zipCode) {
+            (placemarks, error) -> Void in
+            // Placemarks is an optional array of CLPlacemarks, first item in array is best guess of Address
+            
+            if let placemark = placemarks?[0] {
+                
+                self.state = placemark.administrativeArea!
+                print(self.state)
             }
         }
     }

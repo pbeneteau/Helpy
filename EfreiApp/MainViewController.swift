@@ -30,7 +30,7 @@ class MainViewController: UIViewController, NVActivityIndicatorViewable {
     
     let User = mainUser()
     let locationClass = locationHelp()
-    let askClass = askHelp()
+    let askClass = AskHelp()
     
     var permissionAssistant = SPRequestPermissionAssistant.modules.dialog.interactive.create(with: [.Location, .PhotoLibrary, .Notification, .Calendar])
 
@@ -38,8 +38,8 @@ class MainViewController: UIViewController, NVActivityIndicatorViewable {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if deviceInfos().isInternetAvailable() == false {
-            print("No connexion detected")
+        if DeviceInfos().isInternetAvailable() == false {
+            print("No connexion")
         } else {
             print("Connexion detected")
             
@@ -54,8 +54,8 @@ class MainViewController: UIViewController, NVActivityIndicatorViewable {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        checkPermissionsState()
-        permissionAssistant.present(on: self)
+        super.viewDidAppear(true)
+        _ = Timer.scheduledTimer(timeInterval: 0.4, target: self, selector: #selector(self.checkPermissionsState), userInfo: nil, repeats: false);
     }
     
     override func didReceiveMemoryWarning() {
@@ -66,11 +66,10 @@ class MainViewController: UIViewController, NVActivityIndicatorViewable {
     func initLocationDetails() {
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        locationClass.updateUserLocation()
-        locationClass.retrieveUserDatabaseAdress(userID: (user?.uid)!) {
-            print("csjcnskjd")
+        locationClass.setLocation { success in
+            if success {
+            }
         }
-        locationClass.coordinatesFromAdress()
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
     
@@ -88,8 +87,6 @@ class MainViewController: UIViewController, NVActivityIndicatorViewable {
         }
         print("user did logout")
     }
-    
-
     
     @IBAction func helpButtonAction(_ sender: Any) {
         
@@ -110,10 +107,6 @@ class MainViewController: UIViewController, NVActivityIndicatorViewable {
                 return
             }
         }
-
-    }
-    
-    @IBAction func showPermissions(_ sender: Any) {
     }
 
 }

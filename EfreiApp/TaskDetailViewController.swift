@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import EventKit
+
 
 class TaskDetailViewController: UIViewController {
 
@@ -20,6 +22,9 @@ class TaskDetailViewController: UIViewController {
     var task: String = ""
     var date: String = ""
     var distance: Double = 0.0
+    var nsDate: String = ""
+    
+    let df: DateFormatter = DateFormatter()
     
     var detailTask: asksArround? {
         didSet {
@@ -29,7 +34,6 @@ class TaskDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
         configureView()
     }
 
@@ -53,27 +57,40 @@ class TaskDetailViewController: UIViewController {
             task = (detailTask.type!)
             date = (detailTask.date!)
             distance = (detailTask.distance!)
-            print(address)
-            print(task)
-            print(date)
-            print(distance)
+            nsDate = (detailTask.nsDate!)
         }
     }
-
-    @IBAction func closeButton(_ sender: Any) {
-
+    
+    @IBAction func declineButton(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
-
-    @IBAction func routefromAdressButton(_ sender: Any) {
-        let newString = address.replacingOccurrences(of: " ", with: "+")
+    
+    @IBAction func acceptTaskButton(_ sender: Any) {
+        /*let newString = address.replacingOccurrences(of: " ", with: "+")
         let URL = "http://maps.apple.com/?address=\(newString)"
         openMap(scheme: URL)
+         */
+        let calendar = NSCalendar.current
+        
+        let description = "Address: \(address)"
+        let beginDateString = self.nsDate
+        
+        
+        df.dateFormat = "yyyy-MM-dd hh:mm:ss Z"
+        print(beginDateString)
+        let beginDate = df.date(from: beginDateString)
+        while beginDate == nil {
+           print("nil")
+        }
+        
+        let endDate = calendar.date(byAdding: .hour, value: 2, to: beginDate!)
+        
+        print("Adding to calendar")
+        
+        addEventToCalendar(title: task, description: description, startDate: beginDate!, endDate: endDate!)
     }
     
-    func openMap(scheme: String) {
-        print(scheme)
-        
+    func openMap(scheme: String) {        
         if let url = URL(string: scheme) {
             if #available(iOS 10, *) {
                 UIApplication.shared.open(url, options: [:],
@@ -88,4 +105,27 @@ class TaskDetailViewController: UIViewController {
         }
     }
     
+    func addEventToCalendar(title: String, description: String?, startDate: Date, endDate: Date, completion: ((_ success: Bool, _ error: NSError?) -> Void)? = nil) {
+        let eventStore = EKEventStore()
+        
+        eventStore.requestAccess(to: .event, completion: { (granted, error) in
+            if (granted) && (error == nil) {
+                let event = EKEvent(eventStore: eventStore)
+                event.title = title
+                event.startDate = startDate as Date
+                event.endDate = endDate as Date
+                event.notes = description
+                event.calendar = eventStore.defaultCalendarForNewEvents
+                do {
+                    try eventStore.save(event, span: .thisEvent)
+                } catch let e as NSError {
+                    completion?(false, e)
+                    return
+                }
+                completion?(true, nil)
+            } else {
+                completion?(false, error as NSError?)
+            }
+        })
+    }
 }

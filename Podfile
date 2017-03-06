@@ -18,7 +18,9 @@ target 'EfreiApp' do
   pod 'NVActivityIndicatorView'
   pod 'Sparrow/Modules/RequestPermission', :git => 'https://github.com/IvanVorobei/Sparrow.git’  
   pod 'Spring', :git => 'https://github.com/MengTo/Spring.git', :branch => 'swift3'
-
+  pod 'M13Checkbox'
+  pod 'SkyFloatingLabelTextField'
+  
   target 'EfreiAppTests' do
     inherit! :search_paths
     # Pods for testing

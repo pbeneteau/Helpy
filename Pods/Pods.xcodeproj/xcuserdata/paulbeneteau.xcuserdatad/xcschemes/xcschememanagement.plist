@@ -24,6 +24,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>M13Checkbox.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>NVActivityIndicatorView.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -40,6 +45,11 @@
 			<false/>
 		</dict>
 		<key>Pods-EfreiAppUITests.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>SkyFloatingLabelTextField.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -67,7 +77,12 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>07003593126CDAB06BD1BCB7FD2BD887</key>
+		<key>20A9DD9ABBF08BC57372A26C35327BF1</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>3E043EFFBC62F63C0048EC0737EEECF8</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -77,12 +92,27 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>4670B5D82B9CB4F14A3BCA253D046642</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>51D7B820AD4565F6506F9D35E9C75D54</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>565CF63C44253129F00E4197AD933EDB</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>6C4DBB1753FF59E2768CE91513CB630E</key>
+		<key>5E9C76532FBDC630C845FBF831ADA67B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>6A79F15FC006A96328C891D9875E1F0A</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -92,12 +122,7 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>767359CB64B37DBD8F641CE7A31E0BD7</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>9771FF7FB8F18A547F2782306CD19277</key>
+		<key>73C1E3E18591EB7FE1DD97CA9013A371</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -118,11 +143,6 @@
 			<true/>
 		</dict>
 		<key>C17C64536DE6DABE1FE71D33127E2ECB</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>D79CEC85CD8C04122218E77FA8D911AC</key>
 		<dict>
 			<key>primary</key>
 			<true/>

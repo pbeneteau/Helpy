@@ -1,6 +1,6 @@
 //
 //  CurrentUserProfileViewController.swift
-//  
+//
 //
 //  Created by Paul Bénéteau on 03/03/2017.
 //
@@ -10,7 +10,7 @@ import UIKit
 import Firebase
 
 class CurrentUserProfileViewController: UIViewController {
-
+    
     let ref = FIRDatabase.database().reference()
     var user = FIRAuth.auth()?.currentUser
     
@@ -27,12 +27,12 @@ class CurrentUserProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         editAddressView.isHidden = true
-        initUserInfos()
-        initProfileView()
+        initInfos()
+        
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -42,21 +42,17 @@ class CurrentUserProfileViewController: UIViewController {
         
     }
     
-    func initProfileView() {
+    func initInfos() {
+        mainUser().initUserFirstName { firstName in
+            mainUser().initUserLastName { lastName in
+                self.userNameLabel.text = "\(firstName) \(lastName)"
+                self.userEmailLabel.text = self.user?.email
+            }
+        }
         
-        userNameLabel.text = userName
-        userEmailLabel.text = userEmail
-        userAddressLabel.text = userAddress
-    }
-    
-    func initUserInfos() {
-        
-        mainUser().initUserName(){}
-        locationHelp().retrieveUserDatabaseAdress(userID: (user?.uid)!) {}
-        
-        userEmail = (user?.email)!
-        userAddress = locationHelp().getUserDatabaseAdress()
-        
+        locationHelp().retrieveUserDatabaseAdress(userID: (user?.uid)!) { address in
+            self.userAddressLabel.text = address
+        }
     }
     
     @IBAction func closeButton(_ sender: Any) {
@@ -74,5 +70,5 @@ class CurrentUserProfileViewController: UIViewController {
     
     @IBAction func scoreButton(_ sender: Any) {
     }
-
+    
 }

@@ -14,12 +14,12 @@ import SwiftLocation
 
 
 class mainUser {
-    
+        
     private let ref = FIRDatabase.database().reference()
     private var user = FIRAuth.auth()?.currentUser
     
     private var name: String!
-    private var averageMark: Double!
+    private var averageMark: Double = 5.0
     private var totalAsks: Double!
     private var totalHelps: Double!
     private var ratioHA: Double!
@@ -27,53 +27,60 @@ class mainUser {
     
     let Location1: LocationManager = LocationManager()
     
-    func initUserName(finished: @escaping () -> Void) {
-        let userRef = ref.child("users").child((user?.uid)!).child("name")
+    func initUserFirstName(completionHandler: @escaping (_ total: String) -> ()) {
+        let userRef = ref.child("users").child((user?.uid)!).child("firstName")
         
         userRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
-            let name: String = snapshot.value as! String
-            self.name = name
-            finished()
-            print(self.name)
+            if let firstName: String = snapshot.value as? String {
+                completionHandler(firstName)
+            }
         }) { (error) in
             print(error.localizedDescription)
-        }        
+        }
     }
     
-    func initTotalAsks(finished: @escaping () -> Void) {
+    func initUserLastName(completionHandler: @escaping (_ total: String) -> ()) {
+        let userRef = ref.child("users").child((user?.uid)!).child("lastName")
+        
+        userRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
+            if let lastName: String = snapshot.value as? String {
+                completionHandler(lastName)
+            }
+        }) { (error) in
+            print(error.localizedDescription)
+        }
+    }
+    
+    func initTotalAsks(completionHandler: @escaping (_ total: Double) -> ()) {
         let userRef = ref.child("users").child((user?.uid)!).child("asks")
         
         userRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
-            let total: Double = Double(snapshot.childrenCount)
-            self.forceEnd(data: total)
-            self.totalAsks = total
-            finished()
+            let total1: Double = Double(snapshot.childrenCount)
+            completionHandler(total1)
         }) { (error) in
             print(error.localizedDescription)
         }
     }
     
-    func initTotalHelps(finished: @escaping () -> Void) {
+    func initTotalHelps(completionHandler: @escaping (_ total: Double) -> ()) {
         let userRef = ref.child("users").child((user?.uid)!).child("totalHelps")
-       
+        
         userRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
             let total: Double = snapshot.value as! Double
-            self.forceEnd(data: total)
-            self.totalHelps = total
-            finished()
+            completionHandler(total)
         }) { (error) in
             print(error.localizedDescription)
         }
     }
     
-    func initAverageMark(finished: @escaping () -> Void) {
+    func initAverageMark(completionHandler: @escaping (_ mark: Double) -> ()) {
+
         let userRef = ref.child("users").child((user?.uid)!).child("mark")
         
         userRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
-            let mark: Double = snapshot.value as! Double
-            self.forceEnd(data: mark)
-            self.averageMark = mark
-            finished()
+            if let mark: Double = snapshot.value as? Double {
+                completionHandler(mark)
+            }
         }) { (error) in
             print(error.localizedDescription)
         }
@@ -83,8 +90,10 @@ class mainUser {
         return self.name
     }
     func getAverageMark() -> Double {
+        print("returned")
         return averageMark
     }
+    
     func getTotalAsks() -> Double {
         return totalAsks
     }
@@ -97,14 +106,6 @@ class mainUser {
     }
     func getProfileCompletion() -> Int {
         return profileCompletion
-    }
-    
-    init() {
-        name = ""
-        totalAsks = 0
-        totalHelps = 0
-        ratioHA = 0.0
-        profileCompletion = 0
     }
     
     func forceEnd(data: Any) {
